@@ -1,49 +1,76 @@
 ﻿import React from 'react';
-import { Layout, Card, Typography } from 'antd';
+import { Layout, Card, Typography, Button } from 'antd';
 import AttackMap from '../components/AttackMap';
 import './Dashboard.css';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 
-// Define the attack data type to match AttackMap's expectations
+// Type definition for attack data
 type AttackData = {
   id: string;
-  from: [number, number]; // Tuple type for exactly 2 numbers
-  to: [number, number];   // Tuple type for exactly 2 numbers
+  from: [number, number];
+  to: [number, number];
   severity: 'low' | 'medium' | 'high';
 };
 
-const Dashboard: React.FC = () => {
-  // Explicitly type the attacks array as AttackData[]
-  const attacks: AttackData[] = [
+// Props interface for TypeScript
+interface DashboardProps {
+  setIsAuthenticated: (value: boolean) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ setIsAuthenticated }) => {
+  // Memoized attack data to prevent unnecessary re-renders
+  const attacks = React.useMemo<AttackData[]>(() => [
     { 
       id: '1', 
-      from: [40.7128, -74.0060] as [number, number], // New York
-      to: [51.5074, -0.1278] as [number, number],    // London
+      from: [40.7128, -74.0060], // New York coordinates
+      to: [51.5074, -0.1278],    // London coordinates
       severity: 'high' 
     },
     { 
       id: '2', 
-      from: [35.6762, 139.6503] as [number, number], // Tokyo
-      to: [48.8566, 2.3522] as [number, number],     // Paris
+      from: [35.6762, 139.6503], // Tokyo coordinates
+      to: [48.8566, 2.3522],     // Paris coordinates
       severity: 'medium' 
     },
     { 
       id: '3', 
-      from: [19.4326, -99.1332] as [number, number], // Mexico City
-      to: [55.7558, 37.6173] as [number, number],    // Moscow
+      from: [19.4326, -99.1332], // Mexico City coordinates
+      to: [55.7558, 37.6173],    // Moscow coordinates
       severity: 'low' 
     },
-  ];
+  ], []);
+
+  // Logout handler function
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
 
   return (
     <Layout className="dashboard-layout">
       <Header className="dashboard-header">
-        <Title level={3} style={{ color: 'white', margin: 0 }}>CyberShield Dashboard</Title>
+        <Title level={3} style={{ color: 'white', margin: 0 }}>
+          CyberShield Dashboard
+        </Title>
+        <Button 
+          type="primary" 
+          danger 
+          onClick={handleLogout}
+          style={{ float: 'right', marginTop: 16 }}
+          aria-label="Logout button"
+        >
+          Logout
+        </Button>
       </Header>
+      
       <Content className="dashboard-content">
-        <Card title="Global Attack Map" className="dashboard-card">
+        <Card 
+          title="Global Attack Map" 
+          className="dashboard-card"
+          headStyle={{ fontSize: '1.2rem' }}
+        >
           <AttackMap attacks={attacks} />
         </Card>
       </Content>
